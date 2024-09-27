@@ -1,10 +1,17 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix
+#from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+<<<<<<< HEAD
 import numpy as np
+=======
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+>>>>>>> 91b437950ddb7d7c356807cf82d3506d43c291f2
 
 file_path = 'Flight_delay.csv'
 data = pd.read_csv(file_path)
