@@ -2,10 +2,13 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix
+#from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
 
 # Load the dataset
 file_path = 'Flight_delay.csv'
@@ -145,4 +148,80 @@ corr_matrix = data_cleaned[delay_features].corr()
 plt.figure(figsize=(10, 6))
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
 plt.title('Correlation Matrix of Delay-Related Features')
+plt.show()
+
+#---------------------------------------------------------------------------------------
+# Logistic regression model
+log_reg = LogisticRegression(random_state=42)
+log_reg.fit(X_train,y_train)
+
+#Predict on the test data
+y_pred_log_reg = log_reg.predict(X_test)
+
+
+#------------------------------
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train_sample_smaller, y_train_sample_smaller) 
+
+# Predict on the test data
+y_pred_knn = knn.predict(X_test_sample_smaller)
+
+#Evaluate Logistic Regression
+print("Logistic Regression Evaluation:")
+print(f"Accuracy: {accuracy_score(y_test_sample_smaller, y_pred_sample_smaller): 2f}")
+print(f"Precision: {precision_score(y_test_sample_smaller, y_pred_sample_smaller): 2f}")
+print(f"Recall: {recall_score(y_test_sample_smaller, y_pred_sample_smaller): 2f}")
+print(f"F1-Score: {f1_score(y_test_sample_smaller, y_pred_sample_smaller): 2f}")
+
+# Evaluate KNN Regression
+print("KNN Evaluation:")
+print(f"Accuracy: {accuracy_score(y_test_sample_smaller,y_pred_knn):.2f}")
+print(f"Precision: {precision_score(y_test_sample_smaller,y_pred_knn):.2f}")
+print(f"Recall: {recall_score(y_test_sample_smaller,y_pred_knn):.2f}")
+print(f"F1-Score: {f1_score(y_test_sample_smaller,y_pred_knn):.2f}")
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test_sample_smaller,y_pred_knn))
+print("\nClassification Report:")
+print(classification_report(y_test_sample_smaller,y_pred_knn))
+
+#Plotting Logistic  Regression
+fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+
+def plot_decision_boundary(model, X, y, ax, title):
+    # Create mesh grid for the first two features
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                         np.arange(y_min, y_max, 0.1))
+
+    # Predict classes over the mesh grid
+    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # Plot decision boundary
+    ax.contourf(xx, yy, Z, alpha=0.4, cmap='coolwarm')
+    ax.scatter(X[:, 0], X[:, 1], c=y, cmap='coolwarm', edgecolors='k')
+    ax.set_title(title)
+    ax.set_xlabel('Feature 1')
+    ax.set_ylabel('Feature 2')
+
+# Using only the first two features for visualization
+X_train_2D = X_train_sample_smaller.iloc[:, :2].values
+X_test_2D = X_test_sample_smaller.iloc[:, :2].values
+y_train_2D = y_train_sample_smaller  # Use the correct target variable
+
+# Train model again using only the first two features for visualization
+log_reg_2D = LogisticRegression(random_state=42)
+log_reg_2D.fit(X_train_2D, y_train_2D)  
+
+knn_2D = KNeighborsClassifier(n_neighbors=5)
+knn_2D.fit(X_train_2D, y_train_sample_smaller)
+
+# Plot Logistic Regression decision boundary
+plot_decision_boundary(log_reg_2D, X_test_2D, y_test_sample_smaller, ax[0], "Logistic Regression")
+
+# Plot KNN decision boundary
+plot_decision_boundary(knn_2D, X_test_2D, y_test, ax[1], "KNN")
+
+plt.tight_layout()
 plt.show()
